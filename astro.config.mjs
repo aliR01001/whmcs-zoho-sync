@@ -1,7 +1,9 @@
 import { defineConfig } from 'astro/config';
 
+import cloudflare from '@astrojs/cloudflare';
+
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
-  adapter: undefined, // Will use Cloudflare Pages adapter
+  adapter: cloudflare(), // Will use Cloudflare Pages adapter
 });
