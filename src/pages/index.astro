@@ -1,5 +1,5 @@
 ---
-// Dashboard to monitor webhook activity
+// Dashboard to monitor webhook activity with live data
 const title = "WHMCS to Zoho Sync Dashboard";
 ---
 
@@ -23,7 +23,7 @@ const title = "WHMCS to Zoho Sync Dashboard";
       }
       
       .container {
-        max-width: 1200px;
+        max-width: 1400px;
         margin: 0 auto;
       }
       
@@ -81,11 +81,22 @@ const title = "WHMCS to Zoho Sync Dashboard";
         height: 12px;
         border-radius: 50%;
         margin-right: 0.5rem;
+        animation: pulse 2s infinite;
       }
       
       .status-active {
         background-color: #48bb78;
         box-shadow: 0 0 0 4px rgba(72, 187, 120, 0.2);
+      }
+      
+      .status-waiting {
+        background-color: #ed8936;
+        box-shadow: 0 0 0 4px rgba(237, 137, 54, 0.2);
+      }
+      
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
       }
       
       .info-section {
@@ -114,45 +125,59 @@ const title = "WHMCS to Zoho Sync Dashboard";
         word-break: break-all;
       }
       
-      .steps {
-        list-style: none;
-        counter-reset: step-counter;
+      .webhook-data {
+        background: #f7fafc;
+        border-left: 4px solid #667eea;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-top: 1rem;
       }
       
-      .steps li {
-        counter-increment: step-counter;
-        padding: 1rem 0;
-        border-bottom: 1px solid #e2e8f0;
+      .webhook-data h3 {
+        color: #2d3748;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
       }
       
-      .steps li:last-child {
-        border-bottom: none;
+      .data-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
       }
       
-      .steps li::before {
-        content: counter(step-counter);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        background: #667eea;
-        color: white;
-        border-radius: 50%;
-        font-weight: bold;
-        margin-right: 1rem;
-        font-size: 0.875rem;
-      }
-      
-      .code-block {
-        background: #2d3748;
-        color: #e2e8f0;
+      .data-item {
+        background: white;
         padding: 1rem;
         border-radius: 8px;
-        overflow-x: auto;
-        margin: 1rem 0;
-        font-family: 'Courier New', monospace;
+      }
+      
+      .data-label {
+        color: #718096;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+      }
+      
+      .data-value {
+        color: #2d3748;
+        font-size: 1.125rem;
+        font-weight: 600;
+      }
+      
+      .no-data {
+        text-align: center;
+        padding: 2rem;
+        color: #718096;
+        font-style: italic;
+      }
+      
+      .refresh-info {
+        text-align: center;
+        color: #718096;
         font-size: 0.875rem;
+        margin-top: 1rem;
       }
       
       .badge {
@@ -181,29 +206,29 @@ const title = "WHMCS to Zoho Sync Dashboard";
     <div class="container">
       <div class="header">
         <h1>🔄 {title}</h1>
-        <p class="subtitle">Monitor WHMCS webhook activity and sync status</p>
+        <p class="subtitle">Real-time webhook monitoring • Auto-refreshes every 5 seconds</p>
       </div>
 
       <div class="status-cards">
         <div class="card">
           <div class="card-title">Webhook Status</div>
           <div class="card-value">
-            <span class="status-indicator status-active"></span>
-            Active
+            <span class="status-indicator" id="statusIndicator"></span>
+            <span id="statusText">Checking...</span>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">Last Webhook</div>
+          <div class="card-value" style="font-size: 1rem;" id="lastWebhookTime">
+            Never
           </div>
         </div>
         
         <div class="card">
           <div class="card-title">Environment</div>
           <div class="card-value" style="font-size: 1.25rem;">
-            <span class="badge badge-info">Cloudflare Pages</span>
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-title">Last Deployment</div>
-          <div class="card-value" style="font-size: 1rem;">
-            Check Dashboard
+            <span class="badge badge-info">Cloudflare Workers</span>
           </div>
         </div>
       </div>
@@ -214,40 +239,157 @@ const title = "WHMCS to Zoho Sync Dashboard";
           Use this URL in your WHMCS hook:
         </p>
         <div class="endpoint-box">
-          https://your-project.pages.dev/api/whmcs-webhook
+          https://whmcs-zoho-sync.ali-rami.workers.dev/api/whmcs-webhook
         </div>
       </div>
 
       <div class="info-section">
-        <h2>🚀 Setup Instructions</h2>
-        <ol class="steps">
-          <li>
-            <strong>Deploy to Cloudflare Pages</strong><br>
-            <span style="color: #718096;">Connect your repository</span>
-          </li>
-          <li>
-            <strong>Update WHMCS Hook</strong><br>
-            <span style="color: #718096;">Edit webhook URL</span>
-          </li>
-          <li>
-            <strong>Test Integration</strong><br>
-            <span style="color: #718096;">Mark invoice as paid</span>
-          </li>
-          <li>
-            <strong>Monitor Logs</strong><br>
-            <span style="color: #718096;">Check Cloudflare logs</span>
-          </li>
+        <h2>📊 Last Received Webhook</h2>
+        <div id="webhookDataContainer">
+          <div class="no-data">
+            Waiting for webhook data... <br>
+            Mark an invoice as paid in WHMCS to test.
+          </div>
+        </div>
+        <div class="refresh-info">
+          <span id="refreshCounter">Refreshing in 5s...</span>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h2>🚀 Quick Start</h2>
+        <ol style="line-height: 2; color: #4a5568; padding-left: 1.5rem;">
+          <li>Copy the WHMCS hook file to: <code>/includes/hooks/astro_webhook.php</code></li>
+          <li>Update the webhook URL in the hook file (line 128)</li>
+          <li>Mark a test invoice as paid in WHMCS</li>
+          <li>Watch this dashboard update automatically!</li>
         </ol>
       </div>
-
-      <div class="info-section">
-        <h2>📋 Test Endpoint</h2>
-        <div class="endpoint-box">
-          <a href="/api/whmcs-webhook" target="_blank" style="color: #667eea;">
-            /api/whmcs-webhook
-          </a>
-        </div>
-      </div>
     </div>
+
+    <script>
+      let countdown = 5;
+      let countdownInterval;
+      
+      async function fetchWebhookData() {
+        try {
+          const response = await fetch('/api/whmcs-webhook');
+          const data = await response.json();
+          
+          // Update status
+          const statusIndicator = document.getElementById('statusIndicator');
+          const statusText = document.getElementById('statusText');
+          
+          if (data.last_webhook) {
+            statusIndicator.className = 'status-indicator status-active';
+            statusText.textContent = 'Active';
+            
+            // Update last webhook time
+            const lastTime = new Date(data.last_webhook.received_at);
+            const timeAgo = getTimeAgo(lastTime);
+            document.getElementById('lastWebhookTime').textContent = timeAgo;
+            
+            // Display webhook data
+            displayWebhookData(data.last_webhook);
+          } else {
+            statusIndicator.className = 'status-indicator status-waiting';
+            statusText.textContent = 'Waiting';
+            document.getElementById('lastWebhookTime').textContent = 'Never';
+          }
+        } catch (error) {
+          console.error('Error fetching webhook data:', error);
+          const statusIndicator = document.getElementById('statusIndicator');
+          const statusText = document.getElementById('statusText');
+          statusIndicator.className = 'status-indicator status-waiting';
+          statusText.textContent = 'Error';
+        }
+        
+        // Reset countdown
+        countdown = 5;
+      }
+      
+      function displayWebhookData(webhook) {
+        const container = document.getElementById('webhookDataContainer');
+        
+        if (!webhook.invoice || !webhook.client) {
+          container.innerHTML = '<div class="no-data">No valid webhook data received yet.</div>';
+          return;
+        }
+        
+        container.innerHTML = `
+          <div class="webhook-data">
+            <h3>Invoice #${webhook.invoice.number || webhook.invoice.id}</h3>
+            <div class="data-grid">
+              <div class="data-item">
+                <div class="data-label">Client</div>
+                <div class="data-value">${webhook.client.name || 'N/A'}</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Email</div>
+                <div class="data-value">${webhook.client.email || 'N/A'}</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Invoice Total</div>
+                <div class="data-value">$${webhook.invoice.total || '0.00'}</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Payment Method</div>
+                <div class="data-value">${webhook.invoice.payment_method || 'N/A'}</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Invoice Date</div>
+                <div class="data-value">${webhook.invoice.date || 'N/A'}</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Received At</div>
+                <div class="data-value">${new Date(webhook.received_at).toLocaleTimeString()}</div>
+              </div>
+            </div>
+            
+            ${webhook.items && webhook.items.length > 0 ? `
+              <div style="margin-top: 1.5rem;">
+                <div class="data-label">Invoice Items:</div>
+                <div style="margin-top: 0.5rem;">
+                  ${webhook.items.map(item => `
+                    <div style="background: white; padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem;">
+                      <strong>${item.product || item.description}</strong> - $${item.amount}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+      
+      function getTimeAgo(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+        
+        if (seconds < 60) return `${seconds}s ago`;
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+        return `${Math.floor(seconds / 86400)}d ago`;
+      }
+      
+      function updateCountdown() {
+        const counterElement = document.getElementById('refreshCounter');
+        if (countdown > 0) {
+          counterElement.textContent = `Refreshing in ${countdown}s...`;
+          countdown--;
+        } else {
+          counterElement.textContent = 'Refreshing...';
+          fetchWebhookData();
+        }
+      }
+      
+      // Initial fetch
+      fetchWebhookData();
+      
+      // Update countdown every second
+      countdownInterval = setInterval(updateCountdown, 1000);
+      
+      // Fetch data every 5 seconds
+      setInterval(fetchWebhookData, 5000);
+    </script>
   </body>
 </html>
