@@ -1,6 +1,7 @@
 ---
-// Dashboard to monitor webhook activity
-const title = "WHMCS to Zoho Sync Dashboard";
+import "../styles/global.css";
+
+const title = "WHMCS to Zoho Sync";
 ---
 
 <html lang="en">
@@ -8,246 +9,333 @@ const title = "WHMCS to Zoho Sync Dashboard";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        padding: 2rem;
-      }
-      
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-      }
-      
-      .header {
-        background: white;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 2rem;
-      }
-      
-      h1 {
-        color: #2d3748;
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-      }
-      
-      .subtitle {
-        color: #718096;
-        font-size: 1rem;
-      }
-      
-      .status-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-      }
-      
-      .card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-      
-      .card-title {
-        color: #718096;
-        font-size: 0.875rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.5rem;
-      }
-      
-      .card-value {
-        color: #2d3748;
-        font-size: 2rem;
-        font-weight: bold;
-      }
-      
-      .status-indicator {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        margin-right: 0.5rem;
-      }
-      
-      .status-active {
-        background-color: #48bb78;
-        box-shadow: 0 0 0 4px rgba(72, 187, 120, 0.2);
-      }
-      
-      .info-section {
-        background: white;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 2rem;
-      }
-      
-      .info-section h2 {
-        color: #2d3748;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-      }
-      
-      .endpoint-box {
-        background: #f7fafc;
-        border: 2px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 1rem;
-        margin: 1rem 0;
-        font-family: 'Courier New', monospace;
-        font-size: 0.875rem;
-        color: #2d3748;
-        word-break: break-all;
-      }
-      
-      .steps {
-        list-style: none;
-        counter-reset: step-counter;
-      }
-      
-      .steps li {
-        counter-increment: step-counter;
-        padding: 1rem 0;
-        border-bottom: 1px solid #e2e8f0;
-      }
-      
-      .steps li:last-child {
-        border-bottom: none;
-      }
-      
-      .steps li::before {
-        content: counter(step-counter);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        background: #667eea;
-        color: white;
-        border-radius: 50%;
-        font-weight: bold;
-        margin-right: 1rem;
-        font-size: 0.875rem;
-      }
-      
-      .code-block {
-        background: #2d3748;
-        color: #e2e8f0;
-        padding: 1rem;
-        border-radius: 8px;
-        overflow-x: auto;
-        margin: 1rem 0;
-        font-family: 'Courier New', monospace;
-        font-size: 0.875rem;
-      }
-      
-      .badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        background: #edf2f7;
-        color: #4a5568;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        margin-right: 0.5rem;
-      }
-      
-      .badge-success {
-        background: #c6f6d5;
-        color: #22543d;
-      }
-      
-      .badge-info {
-        background: #bee3f8;
-        color: #2c5282;
-      }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1>🔄 {title}</h1>
-        <p class="subtitle">Monitor WHMCS webhook activity and sync status</p>
+  <body
+    class="bg-slate-50 min-h-screen font-sans selection:bg-primary selection:text-white"
+  >
+    <!-- Background Decoration -->
+    <div class="fixed inset-0 -z-10 overflow-hidden">
+      <div
+        class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/20 rounded-full blur-3xl opacity-30 pointer-events-none"
+      >
       </div>
-
-      <div class="status-cards">
-        <div class="card">
-          <div class="card-title">Webhook Status</div>
-          <div class="card-value">
-            <span class="status-indicator status-active"></span>
-            Active
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-title">Environment</div>
-          <div class="card-value" style="font-size: 1.25rem;">
-            <span class="badge badge-info">Cloudflare Pages</span>
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-title">Last Deployment</div>
-          <div class="card-value" style="font-size: 1rem;">
-            Check Dashboard
-          </div>
-        </div>
-      </div>
-
-      <div class="info-section">
-        <h2>📡 Webhook Endpoint</h2>
-        <p style="margin-bottom: 1rem; color: #4a5568;">
-          Use this URL in your WHMCS hook:
-        </p>
-        <div class="endpoint-box">
-          https://your-project.pages.dev/api/whmcs-webhook
-        </div>
-      </div>
-
-      <div class="info-section">
-        <h2>🚀 Setup Instructions</h2>
-        <ol class="steps">
-          <li>
-            <strong>Deploy to Cloudflare Pages</strong><br>
-            <span style="color: #718096;">Connect your repository</span>
-          </li>
-          <li>
-            <strong>Update WHMCS Hook</strong><br>
-            <span style="color: #718096;">Edit webhook URL</span>
-          </li>
-          <li>
-            <strong>Test Integration</strong><br>
-            <span style="color: #718096;">Mark invoice as paid</span>
-          </li>
-          <li>
-            <strong>Monitor Logs</strong><br>
-            <span style="color: #718096;">Check Cloudflare logs</span>
-          </li>
-        </ol>
-      </div>
-
-      <div class="info-section">
-        <h2>📋 Test Endpoint</h2>
-        <div class="endpoint-box">
-          <a href="/api/whmcs-webhook" target="_blank" style="color: #667eea;">
-            /api/whmcs-webhook
-          </a>
-        </div>
+      <div
+        class="absolute bottom-0 right-0 w-[800px] h-[600px] bg-secondary/20 rounded-full blur-3xl opacity-30 pointer-events-none"
+      >
       </div>
     </div>
+
+    <main class="max-w-5xl mx-auto px-6 py-12">
+      <!-- Header -->
+      <header class="mb-12 text-center">
+        <div
+          class="inline-flex items-center justify-center p-2 mb-6 bg-white/50 backdrop-blur-sm border border-slate-200 rounded-full shadow-sm"
+        >
+          <span
+            class="flex h-2 w-2 rounded-full bg-green-500 mx-2 animate-pulse"
+          ></span>
+          <span class="text-xs font-medium text-slate-600 pr-2"
+            >System Operational</span
+          >
+        </div>
+        <h1
+          class="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4"
+        >
+          WHMCS <span
+            class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary"
+            >Zoho Sync</span
+          >
+        </h1>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+          Automated financial synchronization pipeline. Seamlessly transfer paid
+          invoices from WHMCS to Zoho Books in real-time.
+        </p>
+      </header>
+
+      <!-- Status Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <!-- Status Card -->
+        <div
+          class="group relative bg-white/70 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-white/40 to-white/0 rounded-2xl pointer-events-none"
+          >
+          </div>
+          <div class="relative">
+            <div class="flex items-center justify-between mb-4">
+              <h3
+                class="text-sm font-semibold text-slate-500 uppercase tracking-wider"
+              >
+                Webhook Status
+              </h3>
+              <div class="p-2 bg-green-100 text-green-600 rounded-lg">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="text-3xl font-bold text-slate-800">Active</div>
+            <p class="text-sm text-slate-500 mt-2">Listening for events</p>
+          </div>
+        </div>
+
+        <!-- Environment Card -->
+        <div
+          class="group relative bg-white/70 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-white/40 to-white/0 rounded-2xl pointer-events-none"
+          >
+          </div>
+          <div class="relative">
+            <div class="flex items-center justify-between mb-4">
+              <h3
+                class="text-sm font-semibold text-slate-500 uppercase tracking-wider"
+              >
+                Environment
+              </h3>
+              <div class="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                    clip-rule="evenodd"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="text-3xl font-bold text-slate-800">Cloudflare</div>
+            <p class="text-sm text-slate-500 mt-2">Pages (Serverless)</p>
+          </div>
+        </div>
+
+        <!-- Integration Card -->
+        <div
+          class="group relative bg-white/70 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-white/40 to-white/0 rounded-2xl pointer-events-none"
+          >
+          </div>
+          <div class="relative">
+            <div class="flex items-center justify-between mb-4">
+              <h3
+                class="text-sm font-semibold text-slate-500 uppercase tracking-wider"
+              >
+                Integration
+              </h3>
+              <div class="p-2 bg-purple-100 text-purple-600 rounded-lg">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                    clip-rule="evenodd"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="text-3xl font-bold text-slate-800">Ready</div>
+            <p class="text-sm text-slate-500 mt-2">WHMCS &rarr; Zoho</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Webhook Configuration -->
+        <div
+          class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden"
+        >
+          <div class="p-6 border-b border-slate-100 bg-slate-50/50">
+            <h2
+              class="text-lg font-semibold text-slate-800 flex items-center gap-2"
+            >
+              <span
+                class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                  <path
+                    fill-rule="evenodd"
+                    d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
+              </span>
+              Webhook Endpoint
+            </h2>
+          </div>
+          <div class="p-6">
+            <p class="text-slate-600 mb-4 text-sm">
+              Configure this URL in your WHMCS hook settings to start receiving
+              payment notifications.
+            </p>
+            <div class="relative group">
+              <div
+                class="bg-slate-900 rounded-xl p-4 font-mono text-sm text-slate-300 break-all border border-slate-800 shadow-inner"
+              >
+                https://your-project.pages.dev/api/whmcs-webhook
+              </div>
+              <button
+                class="absolute top-2 right-2 p-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                title="Copy to clipboard"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"
+                  ></path>
+                  <path
+                    d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+            <div class="mt-6 flex items-center justify-between">
+              <a
+                href="/api/whmcs-webhook"
+                target="_blank"
+                class="text-sm font-medium text-primary hover:text-primary-hover flex items-center gap-1 transition-colors"
+              >
+                Test Endpoint Directly
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clip-rule="evenodd"></path>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Setup Steps -->
+        <div
+          class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden"
+        >
+          <div class="p-6 border-b border-slate-100 bg-slate-50/50">
+            <h2
+              class="text-lg font-semibold text-slate-800 flex items-center gap-2"
+            >
+              <span
+                class="flex items-center justify-center w-8 h-8 rounded-lg bg-secondary/10 text-secondary"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                    clip-rule="evenodd"></path>
+                </svg>
+              </span>
+              Quick Setup
+            </h2>
+          </div>
+          <div class="p-6">
+            <div class="space-y-6">
+              <!-- Step 1 -->
+              <div class="flex gap-4">
+                <div class="flex-none">
+                  <span
+                    class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold text-sm border border-slate-200"
+                    >1</span
+                  >
+                </div>
+                <div>
+                  <h3 class="text-sm font-semibold text-slate-900">
+                    Deploy to Cloudflare
+                  </h3>
+                  <p class="text-sm text-slate-500 mt-1">
+                    Connect your GitHub repository to Cloudflare Pages.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Step 2 -->
+              <div class="flex gap-4">
+                <div class="flex-none">
+                  <span
+                    class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold text-sm border border-slate-200"
+                    >2</span
+                  >
+                </div>
+                <div>
+                  <h3 class="text-sm font-semibold text-slate-900">
+                    Configure WHMCS
+                  </h3>
+                  <p class="text-sm text-slate-500 mt-1">
+                    Add the webhook URL to your WHMCS hook file.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Step 3 -->
+              <div class="flex gap-4">
+                <div class="flex-none">
+                  <span
+                    class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold text-sm border border-slate-200"
+                    >3</span
+                  >
+                </div>
+                <div>
+                  <h3 class="text-sm font-semibold text-slate-900">
+                    Verify Integration
+                  </h3>
+                  <p class="text-sm text-slate-500 mt-1">
+                    Mark an invoice as paid and check the logs.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="mt-12 text-center text-sm text-slate-400">
+        <p>
+          &copy; {new Date().getFullYear()} WHMCS to Zoho Sync. Built with Astro &
+          Tailwind.
+        </p>
+      </footer>
+    </main>
   </body>
 </html>

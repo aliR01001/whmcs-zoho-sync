@@ -2,8 +2,16 @@ import { defineConfig } from 'astro/config';
 
 import cloudflare from '@astrojs/cloudflare';
 
+import tailwindcss from '@tailwindcss/vite';
+
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
-  adapter: cloudflare(), // Will use Cloudflare Pages adapter
+
+  // Will use Cloudflare Pages adapter
+  adapter: cloudflare(),
+
+  vite: {
+    plugins: [tailwindcss()]
+  }
 });
