@@ -3,16 +3,9 @@ import type { APIRoute } from 'astro';
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const startTime = Date.now();
-    const db = locals.runtime.env.whmcs;
-    // Parse incoming webhook data from WHMCS
-    const data = await request.json();
+    const db = locals.runtime.env.whmcs;    
     
-    // Store this webhook
-    //lastWebhook = {
-    //  ...data,
-    //  received_at: new Date().toISOString(),
-    //  processing_time_ms: Date.now() - startTime
-    //};
+    const data = await request.json();
     
     console.log('=== WHMCS WEBHOOK RECEIVED ===');
     console.log('Timestamp:', new Date().toISOString());
