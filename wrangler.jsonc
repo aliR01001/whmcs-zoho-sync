@@ -1,16 +1,24 @@
 {
 	"main": "dist/_worker.js/index.js",
 	"name": "whmcs-zoho-sync",
-  "compatibility_date": "2025-12-01",
-  "compatibility_flags": [
-    "nodejs_compat",
-    "global_fetch_strictly_public"
-  ],
+	"compatibility_date": "2025-12-01",
+	"compatibility_flags": [
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
 	"assets": {
 		"binding": "ASSETS",
 		"directory": "./dist"
 	},
 	"observability": {
-    "enabled": true
-  }
+		"enabled": true
+	},
+	"d1_databases": [
+		{
+			"binding": "whmcs",
+			"database_name": "whmcs",
+			"database_id": "26132e81-598e-430b-9331-366caafcfb1f",
+			"remote": true
+		}
+	]
 }

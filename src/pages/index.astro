@@ -330,12 +330,143 @@ const title = "WHMCS to Zoho Sync";
         </div>
       </div>
 
+      <!-- Recent Invoices -->
+      <div
+        class="mt-12 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden"
+      >
+        <div
+          class="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center"
+        >
+          <h2
+            class="text-lg font-semibold text-slate-800 flex items-center gap-2"
+          >
+            <span
+              class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-600"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                <path
+                  fill-rule="evenodd"
+                  d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                  clip-rule="evenodd"></path>
+              </svg>
+            </span>
+            Recent Invoices
+          </h2>
+          <button
+            id="refreshInvoices"
+            class="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
+            title="Refresh"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              ></path>
+            </svg>
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead
+              class="text-xs text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100"
+            >
+              <tr>
+                <th class="px-6 py-3 font-medium">Invoice ID</th>
+                <th class="px-6 py-3 font-medium">Client</th>
+                <th class="px-6 py-3 font-medium">Amount</th>
+                <th class="px-6 py-3 font-medium">Payment Method</th>
+                <th class="px-6 py-3 font-medium">Date</th>
+              </tr>
+            </thead>
+            <tbody id="invoicesTableBody" class="divide-y divide-slate-100">
+              <tr>
+                <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+                  Loading invoices...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <footer class="mt-12 text-center text-sm text-slate-400">
         <p>
           &copy; {new Date().getFullYear()} WHMCS to Zoho Sync. Built with Astro &
           Tailwind.
         </p>
       </footer>
+
+      <script>
+        async function loadInvoices() {
+          const tbody = document.getElementById("invoicesTableBody");
+          if (!tbody) return;
+
+          try {
+            tbody.innerHTML =
+              '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Loading invoices...</td></tr>';
+
+            const response = await fetch("/api/whmcs-webhook");
+            const data = await response.json();
+
+            if (data.success && data.invoices && data.invoices.length > 0) {
+              tbody.innerHTML = data.invoices
+                .map(
+                  (invoice: any) => `
+                        <tr class="bg-white hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-slate-900">#${
+                              invoice.invoice_id
+                            }</td>
+                            <td class="px-6 py-4 text-slate-600">${
+                              invoice.client_name
+                            }</td>
+                            <td class="px-6 py-4 text-slate-600 font-medium">${
+                              invoice.total_amount
+                            }</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    ${invoice.payment_method}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-slate-500">${new Date(
+                              invoice.created_at
+                            ).toLocaleString()}</td>
+                        </tr>
+                    `
+                )
+                .join("");
+            } else {
+              tbody.innerHTML =
+                '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">No invoices found.</td></tr>';
+            }
+          } catch (error) {
+            console.error("Error loading invoices:", error);
+            tbody.innerHTML =
+              '<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">Error loading invoices.</td></tr>';
+          }
+        }
+
+        // Load on mount
+        document.addEventListener("DOMContentLoaded", loadInvoices);
+
+        // Refresh button
+        document
+          .getElementById("refreshInvoices")
+          ?.addEventListener("click", loadInvoices);
+      </script>
     </main>
   </body>
 </html>

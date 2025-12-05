@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
 
-export const POST: APIRoute = async ({ request }) => {
-  const startTime = Date.now();
-  
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    const startTime = Date.now();
+    const db = locals.runtime.env.whmcs;
     // Parse incoming webhook data from WHMCS
     const data = await request.json();
     
@@ -32,8 +32,9 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
     
-    // Store data temporarily (for now, just in memory/logs)
-    // Later we'll add Cloudflare KV or D1 database storage
+    await db.prepare(
+      'INSERT INTO invoices (invoice_id, client_name, total_amount, payment_method, raw_data) VALUES (?, ?, ?, ?, ?)'
+    ).bind(data.invoice.id, data.client.name, data.invoice.total, data.invoice.payment_method, JSON.stringify(data)).run();
     
     const processingTime = Date.now() - startTime;
     
@@ -77,21 +78,33 @@ export const POST: APIRoute = async ({ request }) => {
   }
 };
 
-// Optional: Handle GET requests for testing
-export const GET: APIRoute = async () => {
-  return new Response(
-    JSON.stringify({
-      status: 'active',
-      endpoint: '/api/whmcs-webhook',
-      method: 'POST',
-      description: 'WHMCS Invoice Paid Webhook Receiver',
-      timestamp: new Date().toISOString()
-    }),
-    {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json'
+export const GET: APIRoute = async ({ locals }) => {
+  try {
+    const db = locals.runtime.env.whmcs;
+    const { results } = await db.prepare('SELECT * FROM invoices ORDER BY created_at DESC').run();
+    
+    return new Response(
+      JSON.stringify({
+        success: true,
+        invoices: results
+      }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json'
+        }
       }
-    }
-  );
+    );
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
 };
