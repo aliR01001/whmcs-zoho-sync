@@ -7,28 +7,28 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Parse incoming webhook data from WHMCS
     const data = await request.json();
     
-    // Store this webhook
-    //lastWebhook = {
-    //  ...data,
-    //  received_at: new Date().toISOString(),
-    //  processing_time_ms: Date.now() - startTime
-    //};
-    
+    // Log received data (visible in Cloudflare Pages logs)
     console.log('=== WHMCS WEBHOOK RECEIVED ===');
     console.log('Timestamp:', new Date().toISOString());
     console.log('Invoice ID:', data.invoice?.id);
     console.log('Client:', data.client?.name);
     console.log('Total Amount:', data.invoice?.total);
     console.log('Payment Method:', data.invoice?.payment_method);
+    console.log('Full Data:', JSON.stringify(data, null, 2));
     console.log('==============================');
     
+    // Validate required fields
     if (!data.invoice || !data.client) {
+      console.error('ERROR: Missing required invoice or client data');
       return new Response(
         JSON.stringify({
           success: false,
-          error: 'Missing required data'
+          error: 'Missing required data: invoice or client information'
         }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        }
       );
     }
     
@@ -38,6 +38,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     
     const processingTime = Date.now() - startTime;
     
+    // Return success response to WHMCS
     return new Response(
       JSON.stringify({
         success: true,
@@ -47,17 +48,32 @@ export const POST: APIRoute = async ({ request, locals }) => {
         processing_time_ms: processingTime,
         timestamp: new Date().toISOString()
       }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     );
     
   } catch (error) {
-    console.error('=== WEBHOOK ERROR ===', error);
+    console.error('=== WEBHOOK ERROR ===');
+    console.error('Error:', error);
+    console.error('Stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('====================');
+    
     return new Response(
       JSON.stringify({
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        timestamp: new Date().toISOString()
       }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     );
   }
 };
